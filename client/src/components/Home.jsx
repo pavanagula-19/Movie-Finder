@@ -9,7 +9,7 @@ function Home() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  const API_URL = "http://localhost:8080/movies"; // Update with your server URL
+  const API_URL = "https://movie-finder-server-jh7a.onrender.com/movies"; // Update with your server URL
 
   const searchMovies = async (title, page) => {
     try {
