@@ -1,6 +1,8 @@
+// server.js
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');
+const { handleInvalidSearchQuery, handleNoMoviesFound, handleDataFetchError } = require('./errorHandlers');
 
 const app = express();
 const API_URL = 'https://api.themoviedb.org/3/search/movie';
@@ -10,17 +12,26 @@ app.use(cors());
 
 app.get('/movies', async (req, res) => {
   const { title } = req.query;
+
+  if (!title || title.trim() === '') {
+    return handleInvalidSearchQuery(req, res);
+  }
+
   try {
-    const response = await axios.get(`${API_URL}?api_key=${API_KEY}&query=${title}`);
+    const response = await axios.get(`${API_URL}?api_key=${API_KEY}&query=${encodeURIComponent(title)}`);
     const data = response.data.results;
+
+    if (data.length === 0) {89
+      return handleNoMoviesFound(res);
+    }
+
     res.json(data);
   } catch (error) {
-    console.error('Error fetching data:', error);
-    res.status(500).json({ error: 'Error fetching data' });
+    handleDataFetchError(res, error);
   }
 });
 
-const PORT = 5000; // You can change this to any available port you prefer
+const PORT = 8080;
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
