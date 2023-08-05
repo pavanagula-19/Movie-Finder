@@ -43,7 +43,7 @@ function Home() {
 
   return (
     <div className="app">
-      <h1>MOVIE FINDING APPLICATION</h1>
+      <h1>MOVIE SEARCHING APPLICATION</h1>
       <div className="search">
         <input
           placeholder="Search for movies"
