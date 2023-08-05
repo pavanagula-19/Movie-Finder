@@ -1,46 +1,65 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import MovieCard from "./MovieCard";
 import "./Home.css";
 import SearchIcon from "../components/search.svg";
 
-const API_URL = "https://api.themoviedb.org/3/search/movie";
-const API_KEY = "c2b128a32c9ef1cb8c58d4dcfaa8143a";
-
 function Home() {
   const [movies, setMovies] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  const searchMovies = async (title) => {
-    const response = await fetch(`${API_URL}?api_key=${API_KEY}&query=${title}`);
-    const data = await response.json();
-  
-    setMovies(data.results);
+  const API_URL = "http://localhost:8080/movies"; // Update with your server URL
+
+  const searchMovies = async (title, page) => {
+    try {
+      const response = await fetch(`${API_URL}?title=${title}&page=${page}`);
+      const data = await response.json();
+      setMovies(data.results);
+      setCurrentPage(data.current_page);
+      setTotalPages(data.total_pages);
+    } catch (error) {
+      console.error("Error fetching movies:", error);
+    }
   };
-  
+
+  useEffect(() => {
+    if (searchTerm.trim() !== "") {
+      searchMovies(searchTerm, 1);
+    }
+  }, [searchTerm]);
+
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      searchMovies(searchTerm, currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      searchMovies(searchTerm, currentPage + 1);
+    }
+  };
 
   return (
     <div className="app">
-      <h1>MovieFinder</h1>
+      <h1>MOVIE FINDING APPLICATION</h1>
       <div className="search">
         <input
           placeholder="Search for movies"
           value={searchTerm}
           onChange={(event) => setSearchTerm(event.target.value)}
-          onKeyPress={(ev) => {
-            if (ev.key === "Enter") {
-              searchMovies(searchTerm);
-            }
-          }}
         />
-
         <img
           src={SearchIcon}
           alt="search"
-          onClick={() => searchMovies(searchTerm)}
+          onClick={() => {
+            setMovies([]);
+            searchMovies(searchTerm, 1);
+          }}
         />
       </div>
-
-      {movies?.length > 0 ? (
+      {movies.length > 0 ? (
         <div className="container">
           {movies.map((movie) => (
             <MovieCard key={movie.id} movie={movie} />
@@ -51,6 +70,10 @@ function Home() {
           <h2>No movies found</h2>
         </div>
       )}
+      <div className="pagination">
+        <button onClick={handlePreviousPage} disabled={currentPage === 1}>Previous</button>
+        <button onClick={handleNextPage} disabled={currentPage === totalPages}>Next</button>
+      </div>
     </div>
   );
 }

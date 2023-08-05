@@ -11,9 +11,11 @@ const PAGE_SIZE = 10; // Number of movies to show per page
 
 app.use(cors());
 
+
 app.get('/movies', async (req, res) => {
   const { title, page } = req.query;
   const pageNum = parseInt(page, 10) || 1;
+  const PAGE_SIZE = 10; // Number of movies to show per page
 
   if (!title || title.trim() === '') {
     return handleInvalidSearchQuery(req, res);
